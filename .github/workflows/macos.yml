@@ -30,7 +30,7 @@ jobs:
         run: cargo install cargo-bundle
       - name: Build
         run: cargo-bundle bundle --release --format osx
-        working-directory: ./crates/log_viewer
+        # working-directory: ./crates/log_viewer
       - name: Copy libraries
         run: |
           BUNDLE_DIR="./target/release/bundle/osx/Kubelog.app/Contents"
