@@ -1370,6 +1370,7 @@ dependencies = [
  "anyhow",
  "eframe",
  "env_logger",
+ "hyper",
  "image",
  "log",
  "openssl",
