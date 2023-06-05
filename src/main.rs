@@ -2,11 +2,29 @@
 
 
 use std::io::{BufReader, Cursor};
-
+use anyhow::Result;
 use eframe::{egui, Theme};
+use log::{info, error};
 
+fn get_latest_version() -> Result<String> {
+    let url = if cfg!(debug_assertions) {
+        "http://localhost:1111/static/version.toml"
+    } else {
+        "https://kubelog.de/static/version.toml"
+    };
+    let version_info = reqwest::blocking::get(url)?.text()?;
+    Ok(version_info)
+}
 fn main() -> Result<(), eframe::Error> {
     env_logger::init(); // Log to stderr (if you run with `RUST_LOG=debug`).
+    match get_latest_version() {
+        Ok(version) => {
+            info!("Version: {}", version);
+        }
+        Err(e) => {
+            error!("Failed: {}", e);
+        }
+    }
     let icon_data = include_bytes!("../assets/icon/appIcon.png");
     let mut icon_data = BufReader::new(Cursor::new(icon_data));
     let app_img = image::load(&mut icon_data, image::ImageFormat::Png)
