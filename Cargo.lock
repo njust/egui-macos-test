@@ -1372,6 +1372,7 @@ dependencies = [
  "env_logger",
  "image",
  "log",
+ "openssl",
  "reqwest",
  "winres",
 ]
