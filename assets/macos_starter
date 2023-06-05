@@ -1,0 +1,5 @@
+#!/bin/sh
+MAC_OS_DIR=$(cd "$(dirname "$0")"; pwd)
+[ -x /usr/libexec/path_helper ] && eval $(/usr/libexec/path_helper -s)
+$EXEC "$MAC_OS_DIR/kubelog-bin"
+
