@@ -5,6 +5,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+image = {version = "0.24.3", default-features = false, features = ["png"]}
 eframe = "0.22.0"
 env_logger = "0.10.0"
 log = "0.4.18"

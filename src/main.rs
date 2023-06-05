@@ -1,13 +1,30 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")] // hide console window on Windows in release
 
-use eframe::egui;
+
+use std::io::{BufReader, Cursor};
+
+use eframe::{egui, Theme};
 
 fn main() -> Result<(), eframe::Error> {
     env_logger::init(); // Log to stderr (if you run with `RUST_LOG=debug`).
+    let icon_data = include_bytes!("../assets/icon/appIcon.png");
+    let mut icon_data = BufReader::new(Cursor::new(icon_data));
+    let app_img = image::load(&mut icon_data, image::ImageFormat::Png)
+        .expect("Failed to load app icon")
+        .to_rgba8();
+    let (icon_width, icon_height) = app_img.dimensions();
 
     let options = eframe::NativeOptions {
-        initial_window_size: Some(egui::vec2(320.0, 240.0)),
-        ..Default::default()
+        initial_window_size: Some(egui::Vec2::new(1600., 800.)),
+        follow_system_theme: false,
+        centered: true,
+        icon_data: Some(eframe::IconData {
+            width: icon_width,
+            height: icon_height,
+            rgba: app_img.into_raw(),
+        }),
+        default_theme: Theme::Light,
+        ..eframe::NativeOptions::default()
     };
 
     // Our application state:
