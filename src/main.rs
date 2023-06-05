@@ -4,8 +4,40 @@
 use std::io::{BufReader, Cursor};
 use anyhow::Result;
 use eframe::{egui, Theme};
-use log::{info, error};
+use log::{info, error, debug};
 
+pub fn scale_ui_with_keyboard_shortcuts(ctx: &egui::Context, native_pixels_per_point: Option<f32>) {
+    // Using winit on Mac the key with the Plus sign on it is reported as the Equals key
+    // (with both English and Swedish keyboard).)
+    let zoom_in = egui::KeyboardShortcut::new(egui::Modifiers::COMMAND, egui::Key::ArrowUp);
+    let zoom_out = egui::KeyboardShortcut::new(egui::Modifiers::COMMAND, egui::Key::ArrowDown);
+    let reset = egui::KeyboardShortcut::new(egui::Modifiers::COMMAND, egui::Key::Num0);
+
+    let zoom_in = ctx.input_mut(|input| input.consume_shortcut(&zoom_in));
+    let zoom_out = ctx.input_mut(|input| input.consume_shortcut(&zoom_out));
+    let reset = ctx.input_mut(|input| input.consume_shortcut(&reset));
+
+    let mut pixels_per_point = ctx.pixels_per_point();
+
+    if zoom_in {
+        pixels_per_point += 0.1;
+    }
+    if zoom_out {
+        pixels_per_point -= 0.1;
+    }
+    pixels_per_point = pixels_per_point.clamp(0.2, 5.);
+    pixels_per_point = (pixels_per_point * 10.).round() / 10.;
+    if reset {
+        if let Some(native_pixels_per_point) = native_pixels_per_point {
+            pixels_per_point = native_pixels_per_point;
+        }
+    }
+
+    if pixels_per_point != ctx.pixels_per_point() {
+        debug!("Changed GUI scale to {}", pixels_per_point);
+        ctx.set_pixels_per_point(pixels_per_point);
+    }
+}
 fn get_latest_version() -> Result<String> {
     let url = if cfg!(debug_assertions) {
         "http://localhost:1111/static/version.toml"
