@@ -7,3 +7,18 @@ edition = "2021"
 eframe = "0.22.0"
 env_logger = "0.10.0"
 log = "0.4.18"
+
+# Windows metadata
+[package.metadata.winres]
+LegalCopyright = "Copyright © 2023 Nico Just"
+
+[target.'cfg(target_os="windows")'.build-dependencies]
+winres = {git = "https://github.com/njust/winres.git"}
+
+# MacOS metadata
+[package.metadata.bundle]
+identifier="de.kubelog"
+icon = ["../../assets/icon/appIcon.png"]
+name = "Kubelog"
+copyright = "Copyright © 2023 Nico Just"
+osx_minimum_system_version = "10.14"
