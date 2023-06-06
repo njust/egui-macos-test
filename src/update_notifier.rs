@@ -1,5 +1,6 @@
 use anyhow::Result;
 use eframe::egui;
+use log::info;
 use poll_promise::Promise;
 use serde::Deserialize;
 use eframe::egui::{Align, Layout};
@@ -30,6 +31,7 @@ impl UpdateNotifier {
                     }
                     let current_version = env!("CARGO_PKG_VERSION");
                     if version.current != current_version {
+                        info!("Show update notify");
                         let (width, height, pos) = crate::util::get_wnd_center_pos(ctx, 300., 80.);
                         let mut close = false;
                         egui::Window::new("New version available")
@@ -73,9 +75,12 @@ impl UpdateNotifier {
             }
         } else {
             let ctx = ctx.clone();
+            info!("Spawn thread");
             self.update_check = Some(Promise::spawn_thread("update_check", move || {
+                info!("Background thread");
                 let res = Self::get_latest_version();
                 ctx.request_repaint();
+                info!("Request repaint");
                 res
             }));
         }
