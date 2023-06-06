@@ -5,6 +5,9 @@ use std::io::{BufReader, Cursor};
 use anyhow::Result;
 use eframe::{egui, Theme};
 use log::{info, error, debug};
+use update_notifier::UpdateNotifier;
+mod update_notifier;
+mod util;
 
 pub fn scale_ui_with_keyboard_shortcuts(ctx: &egui::Context, native_pixels_per_point: Option<f32>) {
     // Using winit on Mac the key with the Plus sign on it is reported as the Equals key
@@ -80,8 +83,10 @@ fn main() -> Result<(), eframe::Error> {
     // Our application state:
     let mut name = "Arthur".to_owned();
     let mut age = 42;
+    let mut notifier = UpdateNotifier::new();
 
     eframe::run_simple_native("My egui App", options, move |ctx, _frame| {
+        notifier.show(ctx);
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.heading("My egui Application");
             ui.horizontal(|ui| {
