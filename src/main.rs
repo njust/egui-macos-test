@@ -4,7 +4,9 @@
 use std::io::{BufReader, Cursor};
 use anyhow::Result;
 use eframe::{egui, Theme};
+use hyper::http::version;
 use log::{info, error, debug};
+use poll_promise::Promise;
 use update_notifier::UpdateNotifier;
 mod update_notifier;
 mod util;
@@ -41,25 +43,30 @@ pub fn scale_ui_with_keyboard_shortcuts(ctx: &egui::Context, native_pixels_per_p
         ctx.set_pixels_per_point(pixels_per_point);
     }
 }
-fn get_latest_version() -> Result<String> {
-    let url = if cfg!(debug_assertions) {
-        "http://localhost:1111/static/version.toml"
-    } else {
-        "https://kubelog.de/static/version.toml"
-    };
-    let version_info = reqwest::blocking::get(url)?.text()?;
-    Ok(version_info)
-}
 fn main() -> Result<(), eframe::Error> {
     env_logger::init(); // Log to stderr (if you run with `RUST_LOG=debug`).
-    match get_latest_version() {
-        Ok(version) => {
-            info!("Version: {}", version);
-        }
-        Err(e) => {
-            error!("Failed: {}", e);
+    let update_check = Promise::spawn_thread("update_check", move || {
+        info!("Background thread");
+        let res = update_notifier::get_latest_version();
+        info!("Request repaint");
+        res
+    });
+
+    loop {
+        if let Some(chk) = update_check.ready() {
+            match chk {
+                Ok(res) => {
+                    info!("Ok: {:?}", res);
+                    break;
+                }
+                Err(e) => {
+                    error!("Failed: {}", e);
+                    break;
+                }
+            }
         }
     }
+
     let icon_data = include_bytes!("../assets/icon/appIcon.png");
     let mut icon_data = BufReader::new(Cursor::new(icon_data));
     let app_img = image::load(&mut icon_data, image::ImageFormat::Png)

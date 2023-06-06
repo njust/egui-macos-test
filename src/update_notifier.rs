@@ -9,8 +9,8 @@ pub struct UpdateNotifier {
     update_check: Option<Promise<Result<VersionInfo>>>,
     open: bool,
 }
-#[derive(Default, Deserialize)]
-struct VersionInfo {
+#[derive(Default, Deserialize, Debug)]
+pub struct VersionInfo {
     current: String,
     msg: Option<String>,
 }
@@ -78,7 +78,7 @@ impl UpdateNotifier {
             info!("Spawn thread");
             self.update_check = Some(Promise::spawn_thread("update_check", move || {
                 info!("Background thread");
-                let res = Self::get_latest_version();
+                let res = get_latest_version();
                 ctx.request_repaint();
                 info!("Request repaint");
                 res
@@ -86,14 +86,14 @@ impl UpdateNotifier {
         }
     }
 
-    fn get_latest_version() -> Result<VersionInfo> {
-        let url = if cfg!(debug_assertions) {
-            "https://kubelog.de/static/version.toml"
-            // "http://localhost:1111/static/version.toml"
-        } else {
-            "https://kubelog.de/static/version.toml"
-        };
-        let version_info = reqwest::blocking::get(url)?.text()?;
-        Ok(toml::de::from_str(&version_info)?)
-    }
+}
+pub fn get_latest_version() -> Result<VersionInfo> {
+    let url = if cfg!(debug_assertions) {
+        "https://kubelog.de/static/version.toml"
+        // "http://localhost:1111/static/version.toml"
+    } else {
+        "https://kubelog.de/static/version.toml"
+    };
+    let version_info = reqwest::blocking::get(url)?.text()?;
+    Ok(toml::de::from_str(&version_info)?)
 }
