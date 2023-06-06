@@ -85,8 +85,8 @@ fn main() -> Result<(), eframe::Error> {
     let mut age = 42;
     let mut notifier = UpdateNotifier::new();
 
-    eframe::run_simple_native("My egui App", options, move |ctx, _frame| {
-        notifier.show(ctx);
+    info!("Before");
+    let res = eframe::run_simple_native("My egui App", options, move |ctx, _frame| {
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.heading("My egui Application");
             ui.horizontal(|ui| {
@@ -100,5 +100,8 @@ fn main() -> Result<(), eframe::Error> {
             }
             ui.label(format!("Hello '{name}', age {age}"));
         });
-    })
+        notifier.show(ctx);
+    });
+    info!("After");
+    res
 }
