@@ -9,7 +9,7 @@ anyhow = "1"
 reqwest = { version = "0.11", features = ["json", "blocking"] }
 env_logger = "0.10.0"
 log = "0.4.18"
-poll-promise = {version = "0.2.0", features = ["tokio"]}
+poll-promise = { git = "https://github.com/EmbarkStudios/poll-promise.git"}
 
 # Windows metadata
 [package.metadata.winres]
